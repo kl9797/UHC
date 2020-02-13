@@ -1,0 +1,119 @@
+# collapse multiple rows of dates into single row based on unique patid and calculate the duration and frequency
+library(dplyr)
+library(data.table)
+disease1_clean <- dcast(setDT(disease1), patid ~ rowid(patid), value.var = c("fst_dt","lst_dt"), fill="")
+disease1_clean[,"fst_dt_min1"] <- apply(disease1_clean[, 2:185], 1, min,na.rm = TRUE)
+disease1_clean[,"lst_dt_max1"] <- apply(disease1_clean[, 186:369], 1, max,na.rm = TRUE)
+disease1_clean$freq_d1 <- apply(disease1_clean[,2:185], MARGIN = 1, FUN = function(x) length(x[!is.na(x)]) )
+disease1_final <- disease1_clean %>% select(-c(2:369))
+disease1_end <- merge(disease1_final, disease1, by = "patid")
+disease1_end <- unique(disease1_end %>% select(-c(5:6)) %>% rename(
+  index.1 = index,
+  GDR_CD.1 = GDR_CD,
+  yrdob.1 = yrdob,
+))
+
+
+disease2_clean <- dcast(setDT(disease2), patid ~ rowid(patid), value.var = c("fst_dt","lst_dt"), fill="")
+disease2_clean[,"fst_dt_min2"] <- apply(disease2_clean[, 2:640], 1, min,na.rm = TRUE)
+disease2_clean[,"lst_dt_max2"] <- apply(disease2_clean[, 641:1279], 1, max,na.rm = TRUE)
+disease2_clean$freq_d2 <- apply(disease2_clean[,2:640], MARGIN = 1, FUN = function(x) length(x[!is.na(x)]) )
+disease2_final <- disease2_clean %>% select(-c(2:1279))
+disease2_end <- merge(disease2_final, disease2, by = "patid")
+disease2_end <- unique(disease2_end %>% select(-c(5:6)) %>% rename(
+  index.2 = index,
+  GDR_CD.2 = GDR_CD,
+  yrdob.2 = yrdob,
+))
+
+
+disease5_clean <- dcast(setDT(disease5), patid ~ rowid(patid), value.var = c("fst_dt","lst_dt"), fill="")
+disease5_clean[,"fst_dt_min5"] <- apply(disease5_clean[, 2:1680], 1, min,na.rm = TRUE)
+disease5_clean[,"lst_dt_max5"] <- apply(disease5_clean[, 1681:3359], 1, max,na.rm = TRUE)
+disease5_clean$freq_d5 <- apply(disease5_clean[,2:1680], MARGIN = 1, FUN = function(x) length(x[!is.na(x)]) )
+disease5_final <- disease5_clean %>% select(-c(2:3359))
+disease5_end <- merge(disease5_final, disease5, by = "patid")
+disease5_end <- unique(disease5_end %>% select(-c(5:6)) %>% rename(
+  index.5 = index,
+  GDR_CD.5 = GDR_CD,
+  yrdob.5 = yrdob,
+))
+
+
+drug8_clean <- dcast(setDT(drug8), patid ~ rowid(patid), value.var = c("VXX_dt","sup_dt"), fill="")
+drug8_clean[,"VXX_dt_min8"] <- apply(drug8_clean[, 2:260], 1, min,na.rm = TRUE)
+drug8_clean[,"sup_dt_max8"] <- apply(drug8_clean[, 261:519], 1, max,na.rm = TRUE)
+drug8_clean$freq_g8 <- apply(drug8_clean[,2:260], MARGIN = 1, FUN = function(x) length(x[!is.na(x)]) )
+drug8_final <- drug8_clean %>% select(-c(2:519))
+drug8_end <- merge(drug8_final, drug8, by = "patid")
+drug8_end <- unique(drug8_end %>% select(-c(5:6)) %>% rename(
+  index.8 = index,
+  GDR_CD.8 = GDR_CD,
+  yrdob.8 = yrdob,
+))
+
+
+drug3_clean <- dcast(setDT(drug3), patid ~ rowid(patid), value.var = c("VXX_dt","sup_dt"), fill="")
+drug3_clean[,"VXX_dt_min3"] <- apply(drug3_clean[, 2:293], 1, min,na.rm = TRUE)
+drug3_clean[,"sup_dt_max3"] <- apply(drug3_clean[, 294:585], 1, max,na.rm = TRUE)
+drug3_clean$freq_g3 <- apply(drug3_clean[,2:293], MARGIN = 1, FUN = function(x) length(x[!is.na(x)]) )
+drug3_final <- drug3_clean %>% select(-c(2:585))
+drug3_end <- merge(drug3_final, drug3, by = "patid")
+drug3_end <- unique(drug3_end %>% select(-c(5:6)) %>% rename(
+  index.3 = index,
+  GDR_CD.3 = GDR_CD,
+  yrdob.3 = yrdob,
+))
+
+drug10_clean <- dcast(setDT(drug10), patid ~ rowid(patid), value.var = c("VXX_dt","sup_dt"), fill="")
+drug10_clean[,"VXX_dt_min10"] <- apply(drug10_clean[, 2:39], 1, min,na.rm = TRUE)
+drug10_clean[,"sup_dt_max10"] <- apply(drug10_clean[, 40:77], 1, max,na.rm = TRUE)
+drug10_clean$freq_g10 <- apply(drug10_clean[,2:39], MARGIN = 1, FUN = function(x) length(x[!is.na(x)]) )
+drug10_final <- drug10_clean %>% select(-c(2:77))
+drug10_end <- merge(drug10_final, drug10, by = "patid")
+drug10_end <- unique(drug10_end %>% select(-c(5:6)) %>% rename(
+  index.10 = index,
+  GDR_CD.10 = GDR_CD,
+  yrdob.10 = yrdob,
+))
+
+write.csv(disease2_end,file="/Users/likehang/Desktop/data_end/disease2_end.csv", row.names = FALSE)
+write.csv(disease5_end,file="/Users/likehang/Desktop/data_end/disease5_end.csv", row.names = FALSE)
+write.csv(drug10_end,file="/Users/likehang/Desktop/data_end/drug10_end.csv", row.names = FALSE)
+write.csv(drug3_end,file="/Users/likehang/Desktop/data_end/drug3_end.csv", row.names = FALSE)
+
+# 1.dataset that patients take drug8 and have disease1
+subset1 <- merge(disease1_end %>% select(-c(6:7)), drug8_end, by ="patid")
+# 1.1 select the patients that the frist dates of disease1 are between interval (VXX_dt_min + 14, sup_dt_max + 60)
+subset1$ind <- 0 
+subset1$ind[subset1$fst_dt_min1 - subset1$VXX_dt_min8 >= 14 & subset1$fst_dt_min1 - subset1$sup_dt_max8 <= 60] <- 1
+table(subset1$ind)
+# 1.2 add other covariates(drug3, drug10, disease2, disease5) information
+multmerge = function(mypath){
+  filenames=list.files(path=mypath, full.names=TRUE)
+  datalist = lapply(filenames, function(x){read.csv(file=x,header=T)})
+  Reduce(function(x,y) {merge(x,y,by = "patid", all = TRUE)}, datalist)
+}
+subset1_final <- merge(subset1, multmerge("/Users/likehang/Desktop/data_end"), by = "patid",
+                       all.x = TRUE) %>% filter(ind == 1) %>% select(-c(16:18, 22:24, 28:30,34:36)) %>% replace(., is.na(.), 0)
+subset1_final <- select(subset1_final,-c(12),c(24))
+
+# 1.3 select covariates that satisfy the assumptions.
+# 1.3.1 covariates that both predict treatment and outcomes.
+# 1.3.2 can not control for the variables that are observed post-treatment.
+
+# dataset that patients take drug8 and never ever have disease1
+subset2 <- setdiff(drug8_end$patid, disease1_end$patid)
+subset2 <- drug8[which(drug8_end$patid %in% subset2),]
+subset2_final <- merge(subset2, multmerge("/Users/likehang/Desktop/data_end"), by = "patid", 
+                       all.x = TRUE) %>% select(-c(10:12, 16:18, 22:24,28:30)) %>% replace(., is.na(.), 0)
+
+# dataset that patients have disease1 and never ever take drug8
+subset3 <- setdiff(disease1_end$patid, drug8_end$patid)
+subset3 <- disease1[which(disease1_end$patid %in% subset3),]
+subset3_final <- merge(subset3, multmerge("/Users/likehang/Desktop/data_end"), by = "patid", 
+                       all.x = TRUE) %>% select(-c(10:12, 16:18, 22:24,28:30)) %>% replace(., is.na(.), 0)
+
+# dataset that patients never ever have disease1 and never ever take drug8
+subset4 <- setdiff(multmerge("/Users/likehang/Desktop/data_end")$patid, merge(disease1_end,drug8_end,by = "patid", all = TRUE)$patid)
+subset4_final <- multmerge("/Users/likehang/Desktop/data_end")[which(multmerge("/Users/likehang/Desktop/data_end")$patid %in% subset4),]%>% select(-c(5:7, 11:13, 17:19,23:25)) %>% replace(., is.na(.), 0)
