@@ -491,7 +491,7 @@ class PartialDependence(object):
         #ylabel = [df_test.columns[-1]]
 
         xlabel = list(df_test.columns)
-        x_array = df_test[xlabel].as_matrix()
+        x_array = df_test[xlabel].to_numpy()
 
         #y_array = df_test[ylabel].as_matrix()
         #labs = [True if l[0] in [class_array[0]] else False for l in y_array]
